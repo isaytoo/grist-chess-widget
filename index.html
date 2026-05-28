@@ -31,16 +31,16 @@
 
   body {
     background: radial-gradient(ellipse at 30% 20%, #2e1a08 0%, #120b04 60%, #0a0602 100%);
-    min-height: 100vh;
+    height: 100vh;
+    overflow: hidden;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: flex-start;
     font-family: 'IM Fell English', serif;
     color: var(--cream);
-    padding: 10px 10px 20px;
+    padding: 8px;
     position: relative;
-    overflow-x: hidden;
   }
 
   body::before {
@@ -131,6 +131,8 @@
     flex-shrink: 0;
     display: flex;
     flex-direction: column;
+    height: 100%;
+    overflow: hidden;
   }
 
   /* ── MAIN LAYOUT ── */
@@ -140,6 +142,8 @@
     align-items: stretch;
     width: 100%;
     max-width: 900px;
+    height: calc(100vh - 16px);
+    overflow: hidden;
   }
 
   /* ── SIDE PANEL ── */
@@ -375,11 +379,13 @@
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: center;
     gap: 6px;
+    overflow: hidden;
   }
 
   .board-frame {
-    --sq: 68px;
+    --sq: min(68px, calc((100vh - 80px) / 9));
     position: relative;
     padding: 24px;
     background: linear-gradient(145deg, #3d2a12, #1f1208, #2c1d0f);
@@ -693,20 +699,19 @@
 
   /* ── RESPONSIVE ── */
   @media (max-width: 740px) {
-    .board-frame { --sq: 44px; }
-    .board-frame { padding: 14px; }
+    body { height: auto; overflow-y: auto; overflow-x: hidden; }
+    .game-container { height: auto; overflow: visible; flex-direction: column; align-items: center; }
+    .right-column { width: 100%; max-width: 480px; height: auto; overflow: visible; }
+    .side-panel { width: 100%; flex-direction: row; flex-wrap: wrap; height: auto; }
+    .panel-box { flex: 1 1 45%; }
+    .board-frame { --sq: min(44px, calc((100vw - 80px) / 9)); padding: 14px; }
     .coord-h { font-size: 0.5rem; }
     .coord-v { font-size: 0.5rem; width: 12px; }
-    .game-container { flex-direction: column; align-items: center; }
-    .right-column { width: 100%; max-width: 480px; }
-    .side-panel { width: 100%; flex-direction: row; flex-wrap: wrap; }
-    .panel-box { flex: 1 1 45%; }
     .piece { font-size: calc(var(--sq) * 0.68); }
     .checker-crown { font-size: calc(var(--sq) * 0.3); }
   }
   @media (max-width: 480px) {
-    #board { --sq: 38px; }
-    .board-frame { padding: 10px; }
+    .board-frame { --sq: min(38px, calc((100vw - 60px) / 9)); padding: 10px; }
   }
 </style>
 </head>

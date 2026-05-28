@@ -1247,18 +1247,21 @@ function renderBoard() {
     if (G.selected===idx) sq.classList.add('selected');
 
     // Coups légaux disponibles
+    const showHints = document.getElementById('show-hints')?.checked !== false;
     const isLegal = G.legalMoves.some(m=>m.to===idx);
     if (isLegal) {
-      if (G.board[idx]) {
-        sq.classList.add('capturable','clickable');
-        const ring=document.createElement('div');
-        ring.className='capture-ring';
-        sq.appendChild(ring);
-      } else {
-        sq.classList.add('clickable');
-        const dot=document.createElement('div');
-        dot.className='move-dot';
-        sq.appendChild(dot);
+      sq.classList.add('clickable');
+      if (showHints) {
+        if (G.board[idx]) {
+          sq.classList.add('capturable');
+          const ring=document.createElement('div');
+          ring.className='capture-ring';
+          sq.appendChild(ring);
+        } else {
+          const dot=document.createElement('div');
+          dot.className='move-dot';
+          sq.appendChild(dot);
+        }
       }
     } else if (G.board[idx]?.color===G.turn && !G.gameOver) {
       sq.classList.add('clickable');

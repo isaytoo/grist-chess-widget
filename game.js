@@ -344,7 +344,8 @@ function chessMovesForPiece(board, idx, castling, enPassant, forLegal=true) {
 function allPseudoMoves(board, color, castling, enPassant) {
   const moves = [];
   board.forEach((p,i) => {
-    if (p?.color===color) moves.push(...chessMovesForPiece(board,i,castling,enPassant,true));
+    // forLegal=false pour éviter la récursion isInCheck→squareAttackedBy→allPseudoMoves
+    if (p?.color===color) moves.push(...chessMovesForPiece(board,i,castling,enPassant,false));
   });
   return moves;
 }
@@ -364,6 +365,13 @@ function isInCheck(board, color) {
 
 function legalChessMoves(board, color, castling, enPassant) {
   const pseudo = allPseudoMoves(board, color, castling, enPassant);
+  // Ajouter les roques séparément (forLegal=true safe ici car allPseudoMoves passe forLegal=false)
+  const kingIdx = board.findIndex(p => p?.color===color && p?.type==='K');
+  if (kingIdx >= 0) {
+    chessMovesForPiece(board, kingIdx, castling, enPassant, true)
+      .filter(m => m.castle)
+      .forEach(m => pseudo.push(m));
+  }
   return pseudo.filter(m => {
     const nb = applyChessMove(cloneBoard(board), m, castling, enPassant).board;
     return !isInCheck(nb, color);

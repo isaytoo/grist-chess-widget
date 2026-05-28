@@ -1163,28 +1163,49 @@ function enableDragAndDrop(pieceEl, fromIndex) {
     e.preventDefault();
     e.stopPropagation();
 
-    // Select the piece to get legal moves
-    selectPiece(fromIndex);
-    if (!G.legalMoves.length) return;
+    // Calculer les coups légaux SANS appeler renderBoard (qui détruirait pieceEl)
+    let legal;
+    if (G.mode === CHESS) {
+      legal = legalChessMoves(G.board, G.turn, G.castling, G.enPassant)
+        .filter(m => m.from === fromIndex);
+    } else {
+      const all = checkersMoves(G.board, G.turn, G.mustCaptureFrom);
+      const hasCapture = all.some(m => m.captured !== undefined);
+      legal = all.filter(m => {
+        if (m.from !== fromIndex) return false;
+        if (hasCapture && m.captured === undefined) return false;
+        return true;
+      });
+    }
+    if (!legal.length) return;
 
-    pieceEl.setPointerCapture(e.pointerId);
-    pieceEl.classList.add('dragging');
+    // Mettre à jour l'état de sélection SANS re-render
+    G.selected = fromIndex;
+    G.legalMoves = legal;
+
+    // setPointerCapture AVANT renderBoard (pieceEl est encore dans le DOM)
+    try { pieceEl.setPointerCapture(e.pointerId); } catch(_) { return; }
 
     const rect = pieceEl.getBoundingClientRect();
     const offsetX = e.clientX - rect.left;
     const offsetY = e.clientY - rect.top;
     let dragMoved = false;
 
+    // Ghost : cloner la pièce pour le drag visuel, laisser le plateau s'afficher
+    const ghost = pieceEl.cloneNode(true);
+    ghost.style.cssText = `position:fixed;left:${e.clientX - offsetX}px;top:${e.clientY - offsetY}px;`
+      + `width:var(--sq);height:var(--sq);z-index:9999;pointer-events:none;`
+      + `transform:scale(1.15);filter:drop-shadow(0 8px 20px rgba(0,0,0,0.8));`
+      + `display:flex;align-items:center;justify-content:center;font-size:inherit;opacity:0.9;`;
+    document.body.appendChild(ghost);
+
+    // Render pour afficher les points légaux (pieceEl sera recréé, mais ghost suit le pointeur)
+    renderBoard();
+
     function moveAt(x, y) {
-      pieceEl.style.position = 'fixed';
-      pieceEl.style.left = (x - offsetX) + 'px';
-      pieceEl.style.top  = (y - offsetY) + 'px';
-      pieceEl.style.zIndex = '9999';
-      pieceEl.style.pointerEvents = 'none';
-      pieceEl.style.transform = 'scale(1.15)';
-      pieceEl.style.filter = 'drop-shadow(0 8px 20px rgba(0,0,0,0.8))';
+      ghost.style.left = (x - offsetX) + 'px';
+      ghost.style.top  = (y - offsetY) + 'px';
     }
-    moveAt(e.clientX, e.clientY);
 
     function onPointerMove(ev) {
       dragMoved = true;
@@ -1193,15 +1214,14 @@ function enableDragAndDrop(pieceEl, fromIndex) {
     }
 
     async function onPointerUp(ev) {
-      pieceEl.releasePointerCapture(ev.pointerId);
+      try { pieceEl.releasePointerCapture(ev.pointerId); } catch(_) {}
       document.removeEventListener('pointermove', onPointerMove);
       document.removeEventListener('pointerup', onPointerUp);
 
-      pieceEl.removeAttribute('style');
-      pieceEl.classList.remove('dragging');
+      ghost.remove();
       document.querySelectorAll('.square.drag-hover').forEach(s => s.classList.remove('drag-hover'));
 
-      if (!dragMoved) return; // click handled separately
+      if (!dragMoved) return; // clic simple géré par handleSquareClick
 
       const targetSq = getSquareUnderPointer(ev.clientX, ev.clientY);
       if (!targetSq) { deselectPiece(); return; }

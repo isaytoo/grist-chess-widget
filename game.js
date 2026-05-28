@@ -186,9 +186,11 @@ function isHumanTurn() {
 function onPlayModeChange() {
   const row = document.getElementById('human-side-row');
   if (row) row.style.display = document.getElementById('play-mode').value === 'human-ai' ? '' : 'none';
+  updatePlayerLabels();
   newGame();
 }
 function onHumanSideChange() {
+  updatePlayerLabels();
   newGame();
 }
 
@@ -1649,12 +1651,36 @@ function endGame(msg) {
 /* ═══════════════════════════════════
    CONTRÔLES UTILISATEUR
 ═══════════════════════════════════ */
+function updatePlayerLabels() {
+  const playMode = document.getElementById('play-mode').value;
+  const human = humanSide();
+  const nameW = document.getElementById('name-white');
+  const nameB = document.getElementById('name-black');
+  if (!nameW || !nameB) return;
+  if (playMode === 'human-ai') {
+    nameW.textContent = human === WHITE ? 'Blancs' : 'Blancs (IA)';
+    nameB.textContent = human === BLACK ? 'Noirs' : 'Noirs (IA)';
+  } else if (playMode === 'ai-ai') {
+    nameW.textContent = 'Blancs (IA)';
+    nameB.textContent = 'Noirs (IA)';
+  } else {
+    nameW.textContent = 'Blancs';
+    nameB.textContent = 'Noirs';
+  }
+}
+
 function newGame() {
   clearTimeout(aiTimer);
   _abortSearch=true;
   const scores={...G.scores};
   G=createState(G.mode);
   G.scores=scores;
+  // Auto-flip : si le joueur humain joue les noirs, retourner le plateau
+  const playMode = document.getElementById('play-mode').value;
+  if (playMode === 'human-ai' && humanSide() === BLACK) {
+    G.flipped = true;
+  }
+  updatePlayerLabels();
   // Clear TT and history heuristic
   TT.clear();
   Object.keys(histHeuristic).forEach(k => delete histHeuristic[k]);

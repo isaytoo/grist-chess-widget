@@ -170,6 +170,29 @@ function orderMoves(moves, board, ttMove, ply) {
 }
 
 /* ═══════════════════════════════════
+   HELPERS MODE DE JEU
+═══════════════════════════════════ */
+function humanSide() {
+  const el = document.getElementById('human-side');
+  return el ? el.value : WHITE;
+}
+function isHumanTurn() {
+  const playMode = document.getElementById('play-mode').value;
+  if (playMode === 'ai-ai')      return false;
+  if (playMode === 'human-human') return true;
+  return G.turn === humanSide();
+}
+
+function onPlayModeChange() {
+  const row = document.getElementById('human-side-row');
+  if (row) row.style.display = document.getElementById('play-mode').value === 'human-ai' ? '' : 'none';
+  newGame();
+}
+function onHumanSideChange() {
+  newGame();
+}
+
+/* ═══════════════════════════════════
    ÉTAT GLOBAL
 ═══════════════════════════════════ */
 let G = {}; // état du jeu
@@ -931,9 +954,7 @@ function enableDragAndDrop(pieceEl, fromIndex) {
   if (G.gameOver) return;
   if (!G.board[fromIndex] || G.board[fromIndex].color !== G.turn) return;
 
-  const playMode = document.getElementById('play-mode').value;
-  if (playMode === 'human-ai' && G.turn === 'black') return;
-  if (playMode === 'ai-ai') return;
+  if (!isHumanTurn()) return;
 
   pieceEl.draggable = false;
 
@@ -1168,10 +1189,7 @@ function renderMoveHistory() {
 ═══════════════════════════════════ */
 function handleSquareClick(idx) {
   if (G.gameOver) return;
-  const playMode=document.getElementById('play-mode').value;
-  // En mode humain vs IA, seul le joueur humain peut cliquer (blancs par défaut)
-  if (playMode==='human-ai' && G.turn===BLACK) return;
-  if (playMode==='ai-ai') return;
+  if (!isHumanTurn()) return;
 
   const piece=G.board[idx];
 
@@ -1343,10 +1361,7 @@ function executeMove(move, promoteType=null) {
 let aiTimer=null;
 function scheduleAI() {
   if (G.gameOver) return;
-  const playMode=document.getElementById('play-mode').value;
-  const isAITurn = (playMode==='human-ai' && G.turn===BLACK)
-                 || playMode==='ai-ai';
-  if (!isAITurn) return;
+  if (isHumanTurn()) return;
 
   document.getElementById('ai-thinking').classList.add('visible');
   clearTimeout(aiTimer);
@@ -1471,15 +1486,16 @@ function undoMove() {
   document.getElementById('game-over-banner').classList.remove('visible');
 
   // Si on annule le coup de l'IA aussi
+  // Annuler aussi le coup de l'IA si le joueur revient à son tour
   const playMode=document.getElementById('play-mode').value;
-  if (playMode==='human-ai' && G.history.length && G.turn===WHITE) {
+  if (playMode==='human-ai' && G.history.length && G.turn===humanSide()) {
     const prev=G.history.pop();
     G.board=prev.boardBefore;
     G.castling=prev.castlingBefore;
     G.enPassant=prev.enPassantBefore;
     G.capturedWhite=prev.capturedWhiteBefore;
     G.capturedBlack=prev.capturedBlackBefore;
-    G.turn=WHITE;
+    G.turn=humanSide();
     G.moveList.pop();
     G.inCheck=isInCheck(G.board, G.turn);
   }

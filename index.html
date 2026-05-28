@@ -705,10 +705,17 @@
         </div>
         <div class="ai-level-row">
           <label>Mode</label>
-          <select class="ai-select" id="play-mode">
+          <select class="ai-select" id="play-mode" onchange="onPlayModeChange()">
             <option value="human-ai">Humain vs IA</option>
             <option value="human-human">Humain vs Humain</option>
             <option value="ai-ai">IA vs IA</option>
+          </select>
+        </div>
+        <div class="ai-level-row" id="human-side-row">
+          <label>Je joue</label>
+          <select class="ai-select" id="human-side" onchange="onHumanSideChange()">
+            <option value="white">Blancs ♔</option>
+            <option value="black">Noirs ♚</option>
           </select>
         </div>
         <button class="ctrl-btn primary"    onclick="newGame()">Nouvelle Partie</button>

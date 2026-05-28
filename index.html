@@ -714,8 +714,23 @@
 
 <div class="game-container">
 
-  <!-- LEFT PANEL -->
-  <div class="side-panel">
+  <!-- LEFT COLUMN : titre + tabs + panneau -->
+  <div class="right-column">
+
+  <header>
+    <div class="ornament">✦ ✦ ✦</div>
+    <h1>Échecs &amp; Dames</h1>
+    <p class="subtitle">Royal Board Games · Intelligence Artificielle</p>
+    <div class="ornament">✦ ✦ ✦</div>
+  </header>
+
+  <!-- Game mode selector -->
+  <div class="game-selector">
+    <button class="game-btn active" id="btn-chess"    onclick="switchGame('chess')">♟ Échecs</button>
+    <button class="game-btn"        id="btn-checkers" onclick="switchGame('checkers')">⬤ Dames</button>
+  </div>
+
+  <div class="side-panel" style="flex:1;overflow-y:auto;">
 
     <div class="panel-box">
       <h3>⚔ Joueurs</h3>
@@ -786,7 +801,9 @@
       </div>
     </div>
 
-  </div><!-- /left panel -->
+  </div><!-- /left side-panel -->
+
+  </div><!-- /left-column -->
 
   <!-- BOARD AREA -->
   <div class="board-wrapper">
@@ -809,23 +826,8 @@
     <div class="game-over-banner" id="game-over-banner"></div>
   </div><!-- /board-wrapper -->
 
-  <!-- RIGHT COLUMN : titre + tabs + panneau -->
-  <div class="right-column">
-
-  <header>
-    <div class="ornament">✦ ✦ ✦</div>
-    <h1>Échecs &amp; Dames</h1>
-    <p class="subtitle">Royal Board Games · Intelligence Artificielle</p>
-    <div class="ornament">✦ ✦ ✦</div>
-  </header>
-
-  <!-- Game mode selector -->
-  <div class="game-selector">
-    <button class="game-btn active" id="btn-chess"    onclick="switchGame('chess')">♟ Échecs</button>
-    <button class="game-btn"        id="btn-checkers" onclick="switchGame('checkers')">⬤ Dames</button>
-  </div>
-
-  <div class="side-panel" style="flex:1;overflow-y:auto;">
+  <!-- RIGHT PANEL -->
+  <div class="side-panel">
 
     <div class="panel-box">
       <h3>♙ Pièces capturées</h3>
@@ -867,9 +869,7 @@
       </div>
     </div>
 
-  </div><!-- /right side-panel -->
-
-  </div><!-- /right-column -->
+  </div><!-- /right panel -->
 
 </div><!-- /game-container -->
 

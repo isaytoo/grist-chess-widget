@@ -343,6 +343,7 @@
   }
 
   .board-frame {
+    --sq: 68px;
     position: relative;
     padding: 24px;
     background: linear-gradient(145deg, #3d2a12, #1f1208, #2c1d0f);
@@ -380,10 +381,12 @@
     user-select: none;
   }
   .coord-h {
+    display: inline-block;
     width: var(--sq);
     text-align: center;
   }
   .coord-v {
+    display: block;
     height: var(--sq);
     line-height: var(--sq);
     width: 16px;
@@ -392,7 +395,6 @@
 
   /* ── BOARD ── */
   #board {
-    --sq: 68px;
     display: grid;
     grid-template-columns: repeat(8, var(--sq));
     grid-template-rows:    repeat(8, var(--sq));
@@ -627,7 +629,7 @@
 
   /* ── RESPONSIVE ── */
   @media (max-width: 740px) {
-    #board { --sq: 44px; }
+    .board-frame { --sq: 44px; }
     .board-frame { padding: 14px; }
     .coord-h { font-size: 0.5rem; }
     .coord-v { font-size: 0.5rem; width: 12px; }

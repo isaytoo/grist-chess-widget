@@ -693,6 +693,195 @@ function minimax(board, depth, alpha, beta, maximizing, color, castling, enPassa
 }
 
 /* ═══════════════════════════════════
+   OPENING BOOK (ouvertures classiques)
+   Indices : row 0 = rangée 8 (noirs), row 7 = rangée 1 (blancs)
+   a8=0 … h8=7 / a1=56 … h1=63
+═══════════════════════════════════ */
+// Map<clé_historique, [{from,to}]> — plusieurs coups possibles pour varier
+const OPENING_BOOK = new Map([
+  // ── COUP 1 BLANCS ────────────────────────────────────
+  ['', [{from:52,to:36},{from:51,to:35},{from:50,to:34}]],
+  // e4, d4, c4
+
+  // ── RÉPONSES AU 1.e4 (NOIRS) ─────────────────────────
+  ['52:36', [{from:12,to:28},{from:10,to:26},{from:12,to:20},{from:10,to:18}]],
+  // 1...e5, c5 (Sicilienne), e6 (Française), c6 (Caro-Kann)
+
+  // ── RÉPONSES AU 1.d4 (NOIRS) ─────────────────────────
+  ['51:35', [{from:11,to:27},{from:6,to:21},{from:13,to:29}]],
+  // 1...d5, Cf6, f5 (Hollandaise)
+
+  // ── RÉPONSES AU 1.c4 (NOIRS) ─────────────────────────
+  ['50:34', [{from:12,to:28},{from:6,to:21}]],
+  // 1...e5, Cf6
+
+  // ── 2e COUP BLANCS après 1.e4 e5 ─────────────────────
+  ['52:36|12:28', [{from:62,to:45},{from:57,to:42}]],
+  // 2.Cf3, 2.Cc3 (Viennoise)
+
+  // ── 2e COUP BLANCS après 1.e4 c5 (Sicilienne) ────────
+  ['52:36|10:26', [{from:62,to:45}]],
+  // 2.Cf3
+
+  // ── 2e COUP BLANCS après 1.e4 e6 (Française) ─────────
+  ['52:36|12:20', [{from:51,to:35}]],
+  // 2.d4
+
+  // ── 2e COUP BLANCS après 1.e4 c6 (Caro-Kann) ─────────
+  ['52:36|10:18', [{from:51,to:35}]],
+  // 2.d4
+
+  // ── 2e COUP BLANCS après 1.d4 d5 ─────────────────────
+  ['51:35|11:27', [{from:50,to:34},{from:62,to:45}]],
+  // 2.c4 (Gambit Dame), 2.Cf3
+
+  // ── 2e COUP BLANCS après 1.d4 Cf6 ────────────────────
+  ['51:35|6:21', [{from:50,to:34},{from:62,to:45}]],
+  // 2.c4, 2.Cf3
+
+  // ── 2e COUP NOIRS après 1.e4 e5 2.Cf3 ───────────────
+  ['52:36|12:28|62:45', [{from:1,to:18},{from:6,to:21}]],
+  // 2...Cc6, 2...Cf6 (Petroff)
+
+  // ── 2e COUP NOIRS après 1.e4 e5 2.Cc3 (Viennoise) ───
+  ['52:36|12:28|57:42', [{from:1,to:18},{from:6,to:21},{from:5,to:26}]],
+  // 2...Cc6, Cf6, Fc5
+
+  // ── 2e COUP NOIRS après 1.e4 c5 2.Cf3 (Sicilienne) ──
+  ['52:36|10:26|62:45', [{from:11,to:19},{from:1,to:18},{from:12,to:20}]],
+  // 2...d6 (Najdorf), Cc6, e6
+
+  // ── 2e COUP NOIRS après 1.e4 e6 2.d4 (Française) ────
+  ['52:36|12:20|51:35', [{from:11,to:27}]],
+  // 2...d5
+
+  // ── 2e COUP NOIRS après 1.e4 c6 2.d4 (Caro-Kann) ────
+  ['52:36|10:18|51:35', [{from:11,to:27}]],
+  // 2...d5
+
+  // ── 2e COUP NOIRS après 1.d4 d5 2.c4 (Gambit Dame) ──
+  ['51:35|11:27|50:34', [{from:12,to:20},{from:10,to:26},{from:11,to:34}]],
+  // 2...e6 (QGD), c5 (Tarrasch), dxc4 (QGA accepté)
+
+  // ── 2e COUP NOIRS après 1.d4 Cf6 2.c4 ───────────────
+  ['51:35|6:21|50:34', [{from:14,to:30},{from:12,to:20},{from:10,to:18}]],
+  // 2...g6 (Indien du Roi), e6 (Nimzo), c6 (Slave)
+
+  // ── 3e COUP BLANCS après 1.e4 e5 2.Cf3 Cc6 ──────────
+  ['52:36|12:28|62:45|1:18', [
+    {from:61,to:25},  // 3.Fb5 (Lopez)
+    {from:61,to:34},  // 3.Fc4 (Italienne)
+    {from:51,to:35},  // 3.d4  (Écossaise)
+  ]],
+
+  // ── 3e COUP BLANCS après 1.e4 e5 2.Cf3 Cf6 (Petroff) ─
+  ['52:36|12:28|62:45|6:21', [
+    {from:45,to:28},  // 3.Cxe5
+    {from:51,to:35},  // 3.d4
+  ]],
+
+  // ── 3e COUP BLANCS après 1.e4 c5 2.Cf3 d6 (Sicilienne) ─
+  ['52:36|10:26|62:45|11:19', [{from:51,to:35}]],
+  // 3.d4 (Sicilienne ouverte)
+
+  // ── 3e COUP BLANCS après 1.e4 c5 2.Cf3 Cc6 ──────────
+  ['52:36|10:26|62:45|1:18', [{from:51,to:35},{from:61,to:34}]],
+  // 3.d4, 3.Fc4
+
+  // ── 3e COUP BLANCS après 1.e4 e6 2.d4 d5 (Française) ─
+  ['52:36|12:20|51:35|11:27', [
+    {from:57,to:42},  // 3.Cc3 (Classique)
+    {from:57,to:51},  // 3.Cd2 (Tarrasch) — d2 libre après 2.d4
+    {from:36,to:27},  // 3.exd5 (Échange)
+  ]],
+
+  // ── 3e COUP BLANCS après 1.e4 c6 2.d4 d5 (Caro-Kann) ─
+  ['52:36|10:18|51:35|11:27', [
+    {from:57,to:42},  // 3.Cc3
+    {from:36,to:27},  // 3.exd5 (Échange)
+  ]],
+
+  // ── 3e COUP BLANCS après 1.d4 d5 2.c4 e6 (QGD) ──────
+  ['51:35|11:27|50:34|12:20', [{from:57,to:42},{from:62,to:45}]],
+  // 3.Cc3, 3.Cf3
+
+  // ── 3e COUP NOIRS après 1.e4 e5 2.Cf3 Cc6 3.Fb5 (Lopez) ─
+  ['52:36|12:28|62:45|1:18|61:25', [
+    {from:8,to:16},   // 3...a6 (Morphy — plus joué)
+    {from:6,to:21},   // 3...Cf6 (Berlinoise)
+    {from:11,to:19},  // 3...d6 (Steinitz)
+  ]],
+
+  // ── 3e COUP NOIRS après 1.e4 e5 2.Cf3 Cc6 3.Fc4 (Italienne) ─
+  ['52:36|12:28|62:45|1:18|61:34', [
+    {from:5,to:26},   // 3...Fc5 (Giuoco Piano)
+    {from:6,to:21},   // 3...Cf6 (Deux Cavaliers)
+  ]],
+
+  // ── 3e COUP NOIRS après 1.e4 e5 2.Cf3 Cc6 3.d4 (Écossaise) ─
+  ['52:36|12:28|62:45|1:18|51:35', [{from:28,to:35}]],
+  // 3...exd4
+
+  // ── 3e COUP NOIRS après 1.e4 c5 2.Cf3 d6 3.d4 ────────
+  ['52:36|10:26|62:45|11:19|51:35', [{from:26,to:35}]],
+  // 3...cxd4
+
+  // ── 3e COUP NOIRS après 1.d4 d5 2.c4 e6 3.Cc3 (QGD) ──
+  ['51:35|11:27|50:34|12:20|57:42', [
+    {from:6,to:21},   // 3...Cf6
+    {from:5,to:33},   // 3...Fb4 (Nimzo-Indien : f8→b4)
+  ]],
+
+  // ── 4e COUP BLANCS après Lopez 3.Fb5 a6 ──────────────
+  ['52:36|12:28|62:45|1:18|61:25|8:16', [
+    {from:25,to:32},  // 4.Fa4 (ligne principale)
+    {from:25,to:18},  // 4.Fxc6 (Échange Lopez)
+  ]],
+
+  // ── 4e COUP NOIRS après Lopez 4.Fa4 ──────────────────
+  ['52:36|12:28|62:45|1:18|61:25|8:16|25:32', [
+    {from:6,to:21},   // 4...Cf6 (ligne principale)
+    {from:11,to:19},  // 4...d6
+  ]],
+
+  // ── 4e COUP BLANCS après Italienne 3.Fc4 Fc5 ─────────
+  ['52:36|12:28|62:45|1:18|61:34|5:26', [
+    {from:50,to:42},  // 4.c3 (Giuoco Piano)
+    {from:51,to:35},  // 4.d4
+    {from:60,to:62},  // 4.O-O (roque)
+  ]],
+
+  // ── 5e COUP BLANCS après Lopez 4.Fa4 Cf6 ─────────────
+  ['52:36|12:28|62:45|1:18|61:25|8:16|25:32|6:21', [
+    {from:60,to:62},  // 5.O-O (roque)
+  ]],
+
+  // ── 3e COUP BLANCS après 1.d4 Cf6 2.c4 g6 (KID) ──────
+  ['51:35|6:21|50:34|14:30', [
+    {from:57,to:42},  // 3.Cc3
+    {from:62,to:45},  // 3.Cf3
+  ]],
+
+  // ── 3e COUP NOIRS après 1.d4 Cf6 2.c4 g6 3.Cc3 (KID) ─
+  ['51:35|6:21|50:34|14:30|57:42', [
+    {from:5,to:30},   // 3...Fg7 (f8→g6 : 5→30)
+    {from:11,to:19},  // 3...d6
+  ]],
+]);
+
+function getBookMove(board, color) {
+  if (G.mode !== CHESS) return null;
+  const key = G.history.map(h => h.from + ':' + h.to).join('|');
+  const candidates = OPENING_BOOK.get(key);
+  if (!candidates || !candidates.length) return null;
+  const legal = legalChessMoves(board, color, G.castling, G.enPassant);
+  const valid = candidates.filter(c => legal.some(l => l.from===c.from && l.to===c.to));
+  if (!valid.length) return null;
+  const pick = valid[Math.floor(Math.random() * valid.length)];
+  return legal.find(l => l.from===pick.from && l.to===pick.to) || null;
+}
+
+/* ═══════════════════════════════════
    GET BEST MOVE — ITERATIVE DEEPENING
 ═══════════════════════════════════ */
 const ID_TIME_MS = [0, 300, 700, 1500, 3000, 6000];
@@ -700,6 +889,15 @@ let lastAnalysis = { depth:0, nodes:0, score:0, bestMove:null, timeMs:0 };
 let _nodeCount = 0;
 
 function getBestMove(board, color, maxDepth, castling, enPassant, mustFrom=null) {
+  // Vérifier l'opening book avant de calculer
+  const bookMove = getBookMove(board, color);
+  if (bookMove) {
+    lastAnalysis = { depth:0, nodes:0, score:0,
+      bestMove: squareName(bookMove.from)+'→'+squareName(bookMove.to)+' 📖', timeMs:0 };
+    updateAnalysisPanel();
+    return bookMove;
+  }
+
   const moves = G.mode===CHESS
     ? legalChessMoves(board, color, castling, enPassant)
     : checkersMoves(board, color, mustFrom);
@@ -1125,10 +1323,10 @@ function renderCoords() {
     });
   };
 
-  setCoords('top-coords',    files, 'coord-h', d=>d.style.cssText='width:var(--sq);text-align:center;display:inline-block');
-  setCoords('bottom-coords', files, 'coord-h', d=>d.style.cssText='width:var(--sq);text-align:center;display:inline-block');
-  setCoords('left-coords',   ranks, 'coord-v', d=>d.style.cssText='height:var(--sq);line-height:var(--sq);width:16px;text-align:center;display:block');
-  setCoords('right-coords',  ranks, 'coord-v', d=>d.style.cssText='height:var(--sq);line-height:var(--sq);width:16px;text-align:center;display:block');
+  setCoords('top-coords',    files, 'coord-h', ()=>{});
+  setCoords('bottom-coords', files, 'coord-h', ()=>{});
+  setCoords('left-coords',   ranks, 'coord-v', ()=>{});
+  setCoords('right-coords',  ranks, 'coord-v', ()=>{});
 }
 
 /* ═══════════════════════════════════

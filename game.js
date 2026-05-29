@@ -18,6 +18,181 @@ const CHECKERS = 'checkers';
 const WHITE    = 'white';
 const BLACK    = 'black';
 
+/* ═══════════════════════════════════
+   INTERNATIONALISATION (FR / EN)
+═══════════════════════════════════ */
+const I18N = {
+  fr: {
+    title: 'Échecs &amp; Dames',
+    subtitle: 'Royal Board Games · Intelligence Artificielle',
+    chess: '♟ Échecs',
+    checkers: '⬤ Dames',
+    players: '⚔ Joueurs',
+    status: '◈ Statut',
+    selectPiece: 'Sélectionnez une pièce.',
+    aiThinking: 'IA réfléchit',
+    controls: '⚙ Contrôles',
+    aiLevel: 'Niveau IA',
+    lvlBeginner: 'Débutant',
+    lvlAmateur: 'Amateur',
+    lvlIntermediate: 'Intermédiaire',
+    lvlExpert: 'Expert',
+    lvlMaster: 'Maître',
+    mode: 'Mode',
+    modeHumanAi: 'Humain vs IA',
+    modeHumanHuman: 'Humain vs Humain',
+    modeAiAi: 'IA vs IA',
+    iPlay: 'Je joue',
+    sideWhite: 'Blancs ♔',
+    sideBlack: 'Noirs ♚',
+    showMoves: 'Afficher coups',
+    newGame: 'Nouvelle Partie',
+    undo: '↩ Annuler coup',
+    flip: '⟳ Retourner plateau',
+    resign: '⚑ Abandonner',
+    captured: '♙ Pièces capturées',
+    whiteCaps: 'BLANCS',
+    blackCaps: 'NOIRS',
+    history: '📜 Historique',
+    advice: '💡 Conseil &amp; Analyse',
+    hintDefault: 'Appuyez sur <strong>Conseil</strong> pour une suggestion.',
+    askAdvice: 'Demander conseil',
+    aiAnalysis: 'Analyse IA',
+    eval: 'Éval',
+    depth: 'Prof.',
+    nodes: 'Nœuds',
+    time: 'Temps',
+    best: 'Meilleur',
+    promotion: '✦ PROMOTION ✦',
+    promotionDesc: 'Choisissez la pièce de promotion',
+    // Dynamiques
+    white: 'Blancs',
+    black: 'Noirs',
+    whiteAi: 'Blancs (IA)',
+    blackAi: 'Noirs (IA)',
+    gameOver: 'Partie terminée',
+    checkWhite: '<strong>ÉCHEC</strong> au roi blanc !',
+    checkBlack: '<strong>ÉCHEC</strong> au roi noir !',
+    whitesPlay: '<strong>Blancs</strong> jouent.',
+    blacksPlay: '<strong>Noirs</strong> jouent.',
+    mustCapture: '<br><em>Capture multiple obligatoire.</em>',
+    noMove: 'Aucun coup disponible.',
+    capture: 'Capture !',
+    pieceKing: 'Roi', pieceQueen: 'Dame', pieceRook: 'Tour', pieceBishop: 'Fou', pieceKnight: 'Cavalier', piecePawn: 'Pion',
+    castleMove: 'Roque',
+    fenChessOnly: 'FEN disponible uniquement pour les échecs.',
+    fenCopied: 'FEN copié !', pgnChessOnly: 'PGN disponible uniquement pour les échecs.',
+    pgnCopied: 'PGN copié !',
+    winCheckmate: '{w} gagne par échec et mat !',
+    drawStalemate: 'Pat — Match nul !',
+    winNoMoves: '{w} gagnent !',
+    winResign: '{w} gagnent par abandon !',
+  },
+  en: {
+    title: 'Chess &amp; Checkers',
+    subtitle: 'Royal Board Games · Artificial Intelligence',
+    chess: '♟ Chess',
+    checkers: '⬤ Checkers',
+    players: '⚔ Players',
+    status: '◈ Status',
+    selectPiece: 'Select a piece.',
+    aiThinking: 'AI thinking',
+    controls: '⚙ Controls',
+    aiLevel: 'AI Level',
+    lvlBeginner: 'Beginner',
+    lvlAmateur: 'Amateur',
+    lvlIntermediate: 'Intermediate',
+    lvlExpert: 'Expert',
+    lvlMaster: 'Master',
+    mode: 'Mode',
+    modeHumanAi: 'Human vs AI',
+    modeHumanHuman: 'Human vs Human',
+    modeAiAi: 'AI vs AI',
+    iPlay: 'I play',
+    sideWhite: 'White ♔',
+    sideBlack: 'Black ♚',
+    showMoves: 'Show moves',
+    newGame: 'New Game',
+    undo: '↩ Undo move',
+    flip: '⟳ Flip board',
+    resign: '⚑ Resign',
+    captured: '♙ Captured pieces',
+    whiteCaps: 'WHITE',
+    blackCaps: 'BLACK',
+    history: '📜 History',
+    advice: '💡 Advice &amp; Analysis',
+    hintDefault: 'Press <strong>Advice</strong> for a suggestion.',
+    askAdvice: 'Ask advice',
+    aiAnalysis: 'AI Analysis',
+    eval: 'Eval',
+    depth: 'Depth',
+    nodes: 'Nodes',
+    time: 'Time',
+    best: 'Best',
+    promotion: '✦ PROMOTION ✦',
+    promotionDesc: 'Choose the promotion piece',
+    // Dynamic
+    white: 'White',
+    black: 'Black',
+    whiteAi: 'White (AI)',
+    blackAi: 'Black (AI)',
+    gameOver: 'Game over',
+    checkWhite: '<strong>CHECK</strong> on the white king!',
+    checkBlack: '<strong>CHECK</strong> on the black king!',
+    whitesPlay: '<strong>White</strong> to move.',
+    blacksPlay: '<strong>Black</strong> to move.',
+    mustCapture: '<br><em>Multiple capture required.</em>',
+    noMove: 'No move available.',
+    capture: 'Capture!',
+    pieceKing: 'King', pieceQueen: 'Queen', pieceRook: 'Rook', pieceBishop: 'Bishop', pieceKnight: 'Knight', piecePawn: 'Pawn',
+    castleMove: 'Castling',
+    fenChessOnly: 'FEN available for chess only.',
+    fenCopied: 'FEN copied!', pgnChessOnly: 'PGN available for chess only.',
+    pgnCopied: 'PGN copied!',
+    winCheckmate: '{w} wins by checkmate!',
+    drawStalemate: 'Stalemate — Draw!',
+    winNoMoves: '{w} win!',
+    winResign: '{w} win by resignation!',
+  },
+};
+
+let LANG = (function() {
+  try {
+    const saved = localStorage.getItem('chessWidgetLang');
+    if (saved === 'fr' || saved === 'en') return saved;
+  } catch (e) {}
+  return (navigator.language || 'fr').toLowerCase().startsWith('en') ? 'en' : 'fr';
+})();
+
+function t(key) {
+  return (I18N[LANG] && I18N[LANG][key]) || (I18N.fr[key]) || key;
+}
+
+function applyTranslations() {
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    el.innerHTML = t(el.getAttribute('data-i18n'));
+  });
+  document.querySelectorAll('[data-i18n-html]').forEach(el => {
+    el.innerHTML = t(el.getAttribute('data-i18n-html'));
+  });
+  const toggle = document.getElementById('lang-toggle');
+  if (toggle) {
+    toggle.innerHTML = LANG === 'fr'
+      ? 'FR&nbsp;|&nbsp;<span style="opacity:0.5">EN</span>'
+      : '<span style="opacity:0.5">FR</span>&nbsp;|&nbsp;EN';
+  }
+  // Rafraîchir les éléments dynamiques
+  if (typeof updatePlayerLabels === 'function') updatePlayerLabels();
+  if (typeof updateUI === 'function' && typeof G !== 'undefined' && G) updateUI();
+  if (typeof G !== 'undefined' && G && G.gameOver && typeof renderEndBanner === 'function') renderEndBanner();
+}
+
+function toggleLang() {
+  LANG = LANG === 'fr' ? 'en' : 'fr';
+  try { localStorage.setItem('chessWidgetLang', LANG); } catch (e) {}
+  applyTranslations();
+}
+
 // Pièces d'échecs (Unicode)
 const CHESS_PIECES = {
   wK:'♔', wQ:'♕', wR:'♖', wB:'♗', wN:'♘', wP:'♙',
@@ -976,22 +1151,22 @@ function updateAnalysisPanel() {
    EXPORT FEN / PGN
 ═══════════════════════════════════ */
 function exportFEN() {
-  if (G.mode !== CHESS) { alert('FEN disponible uniquement pour les échecs.'); return; }
+  if (G.mode !== CHESS) { alert(t('fenChessOnly')); return; }
   const fen = buildFEN();
-  navigator.clipboard.writeText(fen).then(()=>alert('FEN copié !\n'+fen)).catch(()=>prompt('FEN:',fen));
+  navigator.clipboard.writeText(fen).then(()=>alert(t('fenCopied')+'\n'+fen)).catch(()=>prompt('FEN:',fen));
 }
 
 function exportPGN() {
-  if (G.mode !== CHESS) { alert('PGN disponible uniquement pour les échecs.'); return; }
+  if (G.mode !== CHESS) { alert(t('pgnChessOnly')); return; }
   let pgn = '[Event "Grist Widget Game"]\n';
   pgn += '[Date "'+new Date().toISOString().split('T')[0]+'"]\n';
-  pgn += '[White "Blancs"]\n[Black "Noirs (IA)"]\n[Result "*"]\n\n';
+  pgn += '[White "White"]\n[Black "Black (AI)"]\n[Result "*"]\n\n';
   for (let i=0; i<G.moveList.length; i++) {
     if (i%2===0) pgn += (Math.floor(i/2)+1)+'. ';
     pgn += G.moveList[i]+' ';
   }
   pgn += '*';
-  navigator.clipboard.writeText(pgn).then(()=>alert('PGN copié !')).catch(()=>prompt('PGN:',pgn));
+  navigator.clipboard.writeText(pgn).then(()=>alert(t('pgnCopied'))).catch(()=>prompt('PGN:',pgn));
 }
 
 /* ═══════════════════════════════════
@@ -1401,14 +1576,13 @@ function updateUI() {
   // Statut
   let statusMsg='';
   if (G.gameOver) {
-    statusMsg = '<strong>Partie terminée</strong>';
+    statusMsg = `<strong>${t('gameOver')}</strong>`;
   } else if (G.inCheck && G.mode===CHESS) {
-    statusMsg = `<strong>ÉCHEC</strong> au roi ${G.turn===WHITE?'blanc':'noir'} !`;
+    statusMsg = G.turn===WHITE ? t('checkWhite') : t('checkBlack');
   } else {
-    const who = G.turn===WHITE ? 'Blancs' : 'Noirs';
-    statusMsg = `<strong>${who}</strong> jouent.`;
+    statusMsg = G.turn===WHITE ? t('whitesPlay') : t('blacksPlay');
     if (G.mustCaptureFrom!==null && G.mode===CHECKERS)
-      statusMsg += '<br><em>Capture multiple obligatoire.</em>';
+      statusMsg += t('mustCapture');
   }
   document.getElementById('status-text').innerHTML=statusMsg;
 
@@ -1556,8 +1730,8 @@ function executeMove(move, promoteType=null) {
       // Persist to Grist before ending
       const movNotation = G.moveList[G.moveList.length-1] || '';
       gristSaveMove(move, movNotation, lastAnalysis.score);
-      if (G.inCheck) endGame(opponent(G.turn)+' gagne par échec et mat !');
-      else            endGame('Pat — Match nul !');
+      if (G.inCheck) endGame(opponent(G.turn), 'winCheckmate');
+      else            endGame('draw', 'drawStalemate');
       renderBoard();
       return;
     }
@@ -1601,7 +1775,7 @@ function executeMove(move, promoteType=null) {
     if (!oMoves.length) {
       const movNotation = G.moveList[G.moveList.length-1] || '';
       gristSaveMove(move, movNotation, lastAnalysis.score);
-      endGame((opponent(G.turn)===WHITE?'Blancs':'Noirs')+' gagnent !');
+      endGame(opponent(G.turn), 'winNoMoves');
       renderBoard();
       return;
     }
@@ -1646,18 +1820,19 @@ function getHint() {
   const depth=Math.min(parseInt(document.getElementById('ai-depth').value)||3, 3);
   const hint=getBestMove(G.board, G.turn, depth, G.castling, G.enPassant, G.mustCaptureFrom);
   const hintEl=document.getElementById('hint-text');
-  if (!hint) { hintEl.textContent='Aucun coup disponible.'; return; }
+  if (!hint) { hintEl.textContent=t('noMove'); return; }
 
   const p=G.board[hint.from];
+  const pieceKeys={K:'pieceKing',Q:'pieceQueen',R:'pieceRook',B:'pieceBishop',N:'pieceKnight',P:'piecePawn'};
   let msg='';
   if (G.mode===CHESS) {
     msg=`<strong>${squareName(hint.from)} → ${squareName(hint.to)}</strong>`;
-    if (p) msg+=`<br><em>${{K:'Roi',Q:'Dame',R:'Tour',B:'Fou',N:'Cavalier',P:'Pion'}[p.type]}</em>`;
-    if (hint.capture) msg+=' · <em>Capture !</em>';
-    if (hint.castle)  msg+=' · <em>Roque</em>';
+    if (p) msg+=`<br><em>${t(pieceKeys[p.type])}</em>`;
+    if (hint.capture) msg+=` · <em>${t('capture')}</em>`;
+    if (hint.castle)  msg+=` · <em>${t('castleMove')}</em>`;
   } else {
     msg=`<strong>${squareName(hint.from)} → ${squareName(hint.to)}</strong>`;
-    if (hint.captured!==undefined) msg+=' · <em>Capture !</em>';
+    if (hint.captured!==undefined) msg+=` · <em>${t('capture')}</em>`;
   }
   hintEl.innerHTML=msg;
 }
@@ -1670,15 +1845,16 @@ function showPromotionModal(move) {
   const choices=document.getElementById('promo-choices');
   const color=G.board[move.from].color;
   const types=['Q','R','B','N'];
+  const titleKeys={Q:'pieceQueen',R:'pieceRook',B:'pieceBishop',N:'pieceKnight'};
   choices.innerHTML='';
-  types.forEach(t=>{
+  types.forEach(pt=>{
     const el=document.createElement('div');
     el.className='promo-piece '+(color===WHITE?'white-piece':'black-piece');
-    el.textContent=CHESS_PIECES[(color===WHITE?'w':'b')+t];
-    el.title={Q:'Dame',R:'Tour',B:'Fou',N:'Cavalier'}[t];
+    el.textContent=CHESS_PIECES[(color===WHITE?'w':'b')+pt];
+    el.title=t(titleKeys[pt]);
     el.onclick=()=>{
       modal.style.display='none';
-      executeMove(move,t);
+      executeMove(move,pt);
     };
     choices.appendChild(el);
   });
@@ -1688,24 +1864,31 @@ function showPromotionModal(move) {
 /* ═══════════════════════════════════
    FIN DE PARTIE
 ═══════════════════════════════════ */
-function endGame(msg) {
+// winner : 'white' | 'black' | 'draw' · reasonKey : clé i18n (winCheckmate, drawStalemate, winNoMoves, winResign)
+function endGame(winner, reasonKey) {
   G.gameOver=true;
+  G.endResult = { winner, reasonKey };  // mémorisé pour re-rendu lors du changement de langue
   // Incrémenter score
-  if (msg.includes('Blancs') || msg.includes('white')) G.scores.white++;
-  if (msg.includes('Noirs')  || msg.includes('black')) G.scores.black++;
+  if (winner === 'white') G.scores.white++;
+  if (winner === 'black') G.scores.black++;
   document.getElementById('score-white').textContent=G.scores.white;
   document.getElementById('score-black').textContent=G.scores.black;
 
+  renderEndBanner();
+  document.getElementById('status-text').innerHTML=`<strong>${t('gameOver')}</strong>`;
+
+  gristEndGame(winner);
+}
+
+// Construit le texte de la bannière de fin selon la langue courante
+function renderEndBanner() {
+  if (!G.endResult) return;
+  const { winner, reasonKey } = G.endResult;
+  const wLabel = winner === 'white' ? t('white') : winner === 'black' ? t('black') : '';
+  const msg = t(reasonKey).replace('{w}', wLabel).trim();
   const banner=document.getElementById('game-over-banner');
   banner.textContent='✦ '+msg+' ✦';
   banner.classList.add('visible');
-  document.getElementById('status-text').innerHTML='<strong>Partie terminée</strong>';
-
-  // Extract winner label
-  let winner = 'draw';
-  if (msg.includes('Blancs') || msg.includes('white')) winner = 'white';
-  if (msg.includes('Noirs')  || msg.includes('black')) winner = 'black';
-  gristEndGame(winner);
 }
 
 /* ═══════════════════════════════════
@@ -1718,14 +1901,14 @@ function updatePlayerLabels() {
   const nameB = document.getElementById('name-black');
   if (!nameW || !nameB) return;
   if (playMode === 'human-ai') {
-    nameW.textContent = human === WHITE ? 'Blancs' : 'Blancs (IA)';
-    nameB.textContent = human === BLACK ? 'Noirs' : 'Noirs (IA)';
+    nameW.textContent = human === WHITE ? t('white') : t('whiteAi');
+    nameB.textContent = human === BLACK ? t('black') : t('blackAi');
   } else if (playMode === 'ai-ai') {
-    nameW.textContent = 'Blancs (IA)';
-    nameB.textContent = 'Noirs (IA)';
+    nameW.textContent = t('whiteAi');
+    nameB.textContent = t('blackAi');
   } else {
-    nameW.textContent = 'Blancs';
-    nameB.textContent = 'Noirs';
+    nameW.textContent = t('white');
+    nameB.textContent = t('black');
   }
 }
 
@@ -1747,7 +1930,7 @@ function newGame() {
   document.getElementById('score-white').textContent=scores.white;
   document.getElementById('score-black').textContent=scores.black;
   document.getElementById('game-over-banner').classList.remove('visible');
-  document.getElementById('hint-text').textContent='Appuyez sur Conseil pour une suggestion.';
+  document.getElementById('hint-text').innerHTML=t('hintDefault');
   renderBoard();
   gristNewGame();
   scheduleAI();
@@ -1793,7 +1976,7 @@ function flipBoard() {
 
 function resignGame() {
   if (G.gameOver) return;
-  endGame((G.turn===WHITE?'Noirs':'Blancs')+' gagnent par abandon !');
+  endGame(opponent(G.turn), 'winResign');
   renderBoard();
 }
 
@@ -1811,7 +1994,7 @@ function switchGame(mode) {
   document.getElementById('btn-checkers').classList.toggle('active', mode===CHECKERS);
   document.body.className='mode-'+mode;
   document.getElementById('game-over-banner').classList.remove('visible');
-  document.getElementById('hint-text').textContent='Appuyez sur Conseil pour une suggestion.';
+  document.getElementById('hint-text').innerHTML=t('hintDefault');
 
   // Adapter les icônes joueurs
   document.querySelector('#row-white .player-icon').textContent = mode===CHESS ? '♔' : '⬤';
@@ -1826,5 +2009,6 @@ function switchGame(mode) {
    DÉMARRAGE
 ═══════════════════════════════════ */
 G = createState(CHESS);
+applyTranslations();
 renderBoard();
 initGrist().then(() => gristNewGame());

@@ -54,6 +54,7 @@
 
   /* ── HEADER (dans la colonne droite) ── */
   header {
+    position: relative;
     text-align: center;
     margin-bottom: 10px;
     padding: 10px 8px 8px;
@@ -61,6 +62,27 @@
     border: 1px solid rgba(201,168,76,0.25);
     border-radius: 6px;
     box-shadow: inset 0 1px 0 rgba(201,168,76,0.1), var(--shadow);
+  }
+  .lang-toggle {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    font-family: 'Cinzel', serif;
+    font-size: 0.6rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    color: var(--gold);
+    background: rgba(0,0,0,0.35);
+    border: 1px solid rgba(201,168,76,0.4);
+    border-radius: 4px;
+    padding: 3px 7px;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+    z-index: 5;
+  }
+  .lang-toggle:hover {
+    background: rgba(201,168,76,0.2);
+    color: var(--gold-light);
   }
   header h1 {
     font-family: 'Cinzel', serif;
@@ -753,16 +775,17 @@
   <div class="left-block">
 
   <header>
+    <button class="lang-toggle" id="lang-toggle" onclick="toggleLang()" title="Language / Langue">FR&nbsp;|&nbsp;EN</button>
     <div class="ornament">✦ ✦ ✦</div>
-    <h1>Échecs &amp; Dames</h1>
-    <p class="subtitle">Royal Board Games · Intelligence Artificielle</p>
+    <h1 data-i18n="title">Échecs &amp; Dames</h1>
+    <p class="subtitle" data-i18n="subtitle">Royal Board Games · Intelligence Artificielle</p>
     <div class="ornament">✦ ✦ ✦</div>
   </header>
 
   <!-- Game mode selector -->
   <div class="game-selector">
-    <button class="game-btn active" id="btn-chess"    onclick="switchGame('chess')">♟ Échecs</button>
-    <button class="game-btn"        id="btn-checkers" onclick="switchGame('checkers')">⬤ Dames</button>
+    <button class="game-btn active" id="btn-chess"    onclick="switchGame('chess')"><span data-i18n="chess">♟ Échecs</span></button>
+    <button class="game-btn"        id="btn-checkers" onclick="switchGame('checkers')"><span data-i18n="checkers">⬤ Dames</span></button>
   </div>
 
   <div class="left-panels">
@@ -771,7 +794,7 @@
     <div class="sub-col">
 
       <div class="panel-box">
-        <h3>⚔ Joueurs</h3>
+        <h3><span data-i18n="players">⚔ Joueurs</span></h3>
         <div class="player-display">
           <div class="player-row" id="row-white">
             <div class="player-icon white-icon">♔</div>
@@ -789,10 +812,10 @@
       </div>
 
       <div class="panel-box">
-        <h3>◈ Statut</h3>
-        <div class="status-text" id="status-text">Sélectionnez une pièce.</div>
+        <h3><span data-i18n="status">◈ Statut</span></h3>
+        <div class="status-text" id="status-text" data-i18n="selectPiece">Sélectionnez une pièce.</div>
         <div class="ai-thinking" id="ai-thinking">
-          <span>IA réfléchit</span>
+          <span data-i18n="aiThinking">IA réfléchit</span>
           <div class="think-dots"><span></span><span></span><span></span></div>
         </div>
       </div>
@@ -803,44 +826,44 @@
     <div class="sub-col">
 
       <div class="panel-box panel-grow">
-        <h3>⚙ Contrôles</h3>
+        <h3><span data-i18n="controls">⚙ Contrôles</span></h3>
         <div class="controls">
           <div class="ai-level-row">
-            <label>Niveau IA</label>
+            <label data-i18n="aiLevel">Niveau IA</label>
             <select class="ai-select" id="ai-depth">
-              <option value="1">Débutant</option>
-              <option value="2">Amateur</option>
-              <option value="3" selected>Intermédiaire</option>
-              <option value="4">Expert</option>
-              <option value="5">Maître</option>
+              <option value="1" data-i18n="lvlBeginner">Débutant</option>
+              <option value="2" data-i18n="lvlAmateur">Amateur</option>
+              <option value="3" selected data-i18n="lvlIntermediate">Intermédiaire</option>
+              <option value="4" data-i18n="lvlExpert">Expert</option>
+              <option value="5" data-i18n="lvlMaster">Maître</option>
             </select>
           </div>
           <div class="ai-level-row">
-            <label>Mode</label>
+            <label data-i18n="mode">Mode</label>
             <select class="ai-select" id="play-mode" onchange="onPlayModeChange()">
-              <option value="human-ai">Humain vs IA</option>
-              <option value="human-human">Humain vs Humain</option>
-              <option value="ai-ai">IA vs IA</option>
+              <option value="human-ai" data-i18n="modeHumanAi">Humain vs IA</option>
+              <option value="human-human" data-i18n="modeHumanHuman">Humain vs Humain</option>
+              <option value="ai-ai" data-i18n="modeAiAi">IA vs IA</option>
             </select>
           </div>
           <div class="ai-level-row" id="human-side-row">
-            <label>Je joue</label>
+            <label data-i18n="iPlay">Je joue</label>
             <select class="ai-select" id="human-side" onchange="onHumanSideChange()">
-              <option value="white">Blancs ♔</option>
-              <option value="black">Noirs ♚</option>
+              <option value="white" data-i18n="sideWhite">Blancs ♔</option>
+              <option value="black" data-i18n="sideBlack">Noirs ♚</option>
             </select>
           </div>
           <div class="ai-level-row">
-            <label>Afficher coups</label>
+            <label data-i18n="showMoves">Afficher coups</label>
             <label class="toggle-switch">
               <input type="checkbox" id="show-hints" checked onchange="renderBoard()">
               <span class="toggle-slider"></span>
             </label>
           </div>
-          <button class="ctrl-btn primary"    onclick="newGame()">Nouvelle Partie</button>
-          <button class="ctrl-btn secondary"  onclick="undoMove()">↩ Annuler coup</button>
-          <button class="ctrl-btn secondary"  onclick="flipBoard()">⟳ Retourner plateau</button>
-          <button class="ctrl-btn danger"     onclick="resignGame()">⚑ Abandonner</button>
+          <button class="ctrl-btn primary"    onclick="newGame()" data-i18n="newGame">Nouvelle Partie</button>
+          <button class="ctrl-btn secondary"  onclick="undoMove()" data-i18n="undo">↩ Annuler coup</button>
+          <button class="ctrl-btn secondary"  onclick="flipBoard()" data-i18n="flip">⟳ Retourner plateau</button>
+          <button class="ctrl-btn danger"     onclick="resignGame()" data-i18n="resign">⚑ Abandonner</button>
         </div>
       </div>
 
@@ -878,15 +901,15 @@
     <div class="sub-col">
 
       <div class="panel-box">
-        <h3>♙ Pièces capturées</h3>
-        <div style="margin-bottom:6px; font-size:0.65rem; font-family:'Cinzel',serif; color:rgba(201,168,76,0.5); letter-spacing:0.1em;">BLANCS</div>
+        <h3><span data-i18n="captured">♙ Pièces capturées</span></h3>
+        <div data-i18n="whiteCaps" style="margin-bottom:6px; font-size:0.65rem; font-family:'Cinzel',serif; color:rgba(201,168,76,0.5); letter-spacing:0.1em;">BLANCS</div>
         <div class="captured-area" id="captured-white"></div>
-        <div style="margin:8px 0 6px; font-size:0.65rem; font-family:'Cinzel',serif; color:rgba(201,168,76,0.5); letter-spacing:0.1em;">NOIRS</div>
+        <div data-i18n="blackCaps" style="margin:8px 0 6px; font-size:0.65rem; font-family:'Cinzel',serif; color:rgba(201,168,76,0.5); letter-spacing:0.1em;">NOIRS</div>
         <div class="captured-area" id="captured-black"></div>
       </div>
 
       <div class="panel-box panel-grow">
-        <h3>📜 Historique</h3>
+        <h3><span data-i18n="history">📜 Historique</span></h3>
         <div class="move-history" id="move-history"></div>
       </div>
 
@@ -896,22 +919,22 @@
     <div class="sub-col">
 
       <div class="panel-box">
-        <h3>💡 Conseil &amp; Analyse</h3>
-        <div class="status-text" id="hint-text" style="font-size:0.78rem;">Appuyez sur <strong>Conseil</strong> pour une suggestion.</div>
-        <button class="ctrl-btn secondary" style="margin-top:8px;" onclick="getHint()">Demander conseil</button>
+        <h3><span data-i18n="advice">💡 Conseil &amp; Analyse</span></h3>
+        <div class="status-text" id="hint-text" data-i18n-html="hintDefault" style="font-size:0.78rem;">Appuyez sur <strong>Conseil</strong> pour une suggestion.</div>
+        <button class="ctrl-btn secondary" style="margin-top:8px;" onclick="getHint()" data-i18n="askAdvice">Demander conseil</button>
 
         <div style="margin-top:12px;padding-top:10px;border-top:1px solid rgba(201,168,76,0.15);">
-          <div style="font-family:'Cinzel',serif;font-size:0.65rem;letter-spacing:0.1em;color:rgba(201,168,76,0.5);text-transform:uppercase;margin-bottom:8px;">Analyse IA</div>
+          <div data-i18n="aiAnalysis" style="font-family:'Cinzel',serif;font-size:0.65rem;letter-spacing:0.1em;color:rgba(201,168,76,0.5);text-transform:uppercase;margin-bottom:8px;">Analyse IA</div>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px;font-size:0.7rem;">
-            <div style="color:rgba(245,234,214,0.5);">Éval</div>
+            <div data-i18n="eval" style="color:rgba(245,234,214,0.5);">Éval</div>
             <div id="analysis-score" style="color:#e8c96d;font-family:'Cinzel',serif;font-weight:700;">—</div>
-            <div style="color:rgba(245,234,214,0.5);">Prof.</div>
+            <div data-i18n="depth" style="color:rgba(245,234,214,0.5);">Prof.</div>
             <div id="analysis-depth" style="color:var(--cream);">—</div>
-            <div style="color:rgba(245,234,214,0.5);">Nœuds</div>
+            <div data-i18n="nodes" style="color:rgba(245,234,214,0.5);">Nœuds</div>
             <div id="analysis-nodes" style="color:var(--cream);">—</div>
-            <div style="color:rgba(245,234,214,0.5);">Temps</div>
+            <div data-i18n="time" style="color:rgba(245,234,214,0.5);">Temps</div>
             <div id="analysis-time" style="color:var(--cream);">—</div>
-            <div style="color:rgba(245,234,214,0.5);">Meilleur</div>
+            <div data-i18n="best" style="color:rgba(245,234,214,0.5);">Meilleur</div>
             <div id="analysis-move" style="color:var(--gold);font-family:'Cinzel',serif;">—</div>
           </div>
         </div>
@@ -931,8 +954,8 @@
 <!-- Promotion Modal -->
 <div class="modal-overlay" id="promo-modal" style="display:none;">
   <div class="modal-box">
-    <h2>✦ PROMOTION ✦</h2>
-    <p style="font-size:0.8rem; color:rgba(245,234,214,0.6); margin-bottom:16px; font-style:italic;">Choisissez la pièce de promotion</p>
+    <h2 data-i18n="promotion">✦ PROMOTION ✦</h2>
+    <p data-i18n="promotionDesc" style="font-size:0.8rem; color:rgba(245,234,214,0.6); margin-bottom:16px; font-style:italic;">Choisissez la pièce de promotion</p>
     <div class="promotion-choices" id="promo-choices"></div>
   </div>
 </div>
@@ -982,6 +1005,6 @@
 })();
 </script>
 <script src="https://docs.getgrist.com/grist-plugin-api.js"></script>
-<script src="game.js?v=3"></script>
+<script src="game.js?v=4"></script>
 </body>
 </html>

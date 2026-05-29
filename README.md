@@ -23,16 +23,15 @@
 - **Panneau d'analyse** : score, profondeur, nœuds évalués, meilleur coup, temps de réflexion
 - **Export FEN & PGN** (copie dans le presse-papier)
 - **Retour arrière** (annule le coup + le coup IA)
+- **Interface bilingue FR/EN** (sélecteur de langue + auto-détection du navigateur)
 - **Persistance Grist** : création automatique des tables et sauvegarde de chaque coup
 
 ### Tables Grist créées automatiquement
 
 | Table | Contenu |
 |---|---|
-| `Games` | Parties (type, statut, tour, FEN, score...) |
-| `Moves` | Coups joués (pièce, case, notation, évaluation...) |
-| `Players` | Joueurs (nom, type, ELO, victoires...) |
-| `AI_Analysis` | Analyses IA (profondeur, nœuds, meilleur coup...) |
+| `Chess_Games` | Parties (type, dates, statut, vainqueur, tour, nombre de coups, FEN) |
+| `Chess_Moves` | Coups joués (partie, index, joueur, notation, case départ/arrivée, pièce, capture, évaluation) |
 
 ### Installation
 
@@ -74,16 +73,15 @@ open index.html
 - **Analysis panel**: score, depth, evaluated nodes, best move, thinking time
 - **FEN & PGN export** (copy to clipboard)
 - **Undo** (reverts last move + AI response)
+- **Bilingual UI EN/FR** (language switcher + browser auto-detection)
 - **Grist persistence**: automatic table creation and move-by-move saving
 
 ### Grist Tables (auto-created)
 
 | Table | Content |
 |---|---|
-| `Games` | Games (type, status, turn, FEN, score...) |
-| `Moves` | Played moves (piece, square, notation, eval...) |
-| `Players` | Players (name, type, ELO, wins...) |
-| `AI_Analysis` | AI analysis (depth, nodes, best move...) |
+| `Chess_Games` | Games (type, dates, status, winner, turn, move count, FEN) |
+| `Chess_Moves` | Played moves (game, index, player, notation, from/to square, piece, capture, eval) |
 
 ### Installation
 

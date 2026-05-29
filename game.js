@@ -1036,8 +1036,13 @@ async function initGrist() {
     return;
   }
   try {
-    grist.ready({ requiredAccess: 'full document' });
-    await new Promise(r => setTimeout(r, 300));
+    // Attendre que Grist confirme l'accès via onOptions (signal fiable)
+    // Fallback à 3 s si onOptions ne se déclenche pas (ex. : pas de table liée)
+    await new Promise(resolve => {
+      grist.ready({ requiredAccess: 'full' });
+      grist.onOptions(resolve);
+      setTimeout(resolve, 3000);
+    });
 
     const tables = await grist.docApi.listTables();
     console.log('[Chess] Tables Grist détectées :', tables);

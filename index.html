@@ -169,7 +169,7 @@
     gap: 14px;
     align-items: stretch;
     width: 100%;
-    max-width: 1200px;
+    max-width: 1350px;
   }
 
   /* ── SIDE PANEL ── */
@@ -933,6 +933,29 @@
   </div>
 </div>
 
+<script>
+(function () {
+  function resizeBoard() {
+    var frame = document.querySelector('.board-frame');
+    if (!frame) return;
+    // Réinitialise au CSS par défaut (68px) pour mesurer les hauteurs naturelles
+    frame.style.removeProperty('--sq');
+    void frame.offsetHeight; // force reflow
+    var wrapper = document.querySelector('.board-wrapper');
+    if (!wrapper) return;
+    // overhead = padding cadre (48) + 2 rangées de coords (≈32) + bordure (4) + marges (4)
+    var oh = 88;
+    var sqH = Math.floor((wrapper.offsetHeight - oh) / 8);
+    var sqW = Math.floor((wrapper.offsetWidth  - oh) / 8);
+    var sq  = Math.max(44, Math.min(sqH, sqW, 92));
+    frame.style.setProperty('--sq', sq + 'px');
+  }
+  window.addEventListener('load', function () {
+    requestAnimationFrame(function () { requestAnimationFrame(resizeBoard); });
+  });
+  window.addEventListener('resize', resizeBoard);
+})();
+</script>
 <script src="game.js"></script>
 </body>
 </html>

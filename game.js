@@ -977,29 +977,7 @@ function updateAnalysisPanel() {
 ═══════════════════════════════════ */
 function exportFEN() {
   if (G.mode !== CHESS) { alert('FEN disponible uniquement pour les échecs.'); return; }
-  const pieces = { K:'K',Q:'Q',R:'R',B:'B',N:'N',P:'P' };
-  let fen = '';
-  for (let r=0; r<8; r++) {
-    let empty=0;
-    for (let c=0; c<8; c++) {
-      const p = G.board[r*8+c];
-      if (!p) { empty++; }
-      else {
-        if (empty) { fen+=empty; empty=0; }
-        const ch = pieces[p.type]||'P';
-        fen += p.color==='white' ? ch : ch.toLowerCase();
-      }
-    }
-    if (empty) fen+=empty;
-    if (r<7) fen+='/';
-  }
-  const turn = G.turn==='white'?'w':'b';
-  let castle='';
-  if (G.castling.wK) castle+='K'; if (G.castling.wRh) castle+='Q';
-  if (G.castling.bK) castle+='k'; if (G.castling.bRh) castle+='q';
-  if (!castle) castle='-';
-  const ep = G.enPassant ? squareName(G.enPassant) : '-';
-  fen += ` ${turn} ${castle} ${ep} 0 ${Math.ceil((G.moveList.length+1)/2)}`;
+  const fen = buildFEN();
   navigator.clipboard.writeText(fen).then(()=>alert('FEN copié !\n'+fen)).catch(()=>prompt('FEN:',fen));
 }
 
@@ -1020,52 +998,96 @@ function exportPGN() {
    INTÉGRATION GRIST
 ═══════════════════════════════════ */
 let gristAvailable = false;
-let currentGameId = null;
+let currentGameId  = null;
+
+// Génère la FEN courante sans effet de bord (utilisée aussi par exportFEN)
+function buildFEN() {
+  if (G.mode !== CHESS) return '';
+  const sym = { K:'K', Q:'Q', R:'R', B:'B', N:'N', P:'P' };
+  let fen = '';
+  for (let r = 0; r < 8; r++) {
+    let empty = 0;
+    for (let c = 0; c < 8; c++) {
+      const p = G.board[r*8+c];
+      if (!p) { empty++; }
+      else {
+        if (empty) { fen += empty; empty = 0; }
+        const ch = sym[p.type] || 'P';
+        fen += p.color === WHITE ? ch : ch.toLowerCase();
+      }
+    }
+    if (empty) fen += empty;
+    if (r < 7) fen += '/';
+  }
+  const t = G.turn === WHITE ? 'w' : 'b';
+  let castle = '';
+  if (G.castling.wK)  castle += 'K';
+  if (G.castling.wRh) castle += 'Q';
+  if (G.castling.bK)  castle += 'k';
+  if (G.castling.bRh) castle += 'q';
+  if (!castle) castle = '-';
+  const ep = G.enPassant ? squareName(G.enPassant) : '-';
+  return `${fen} ${t} ${castle} ${ep} 0 ${Math.ceil((G.moveList.length + 1) / 2)}`;
+}
 
 async function initGrist() {
-  if (typeof grist === 'undefined') return;
+  if (typeof grist === 'undefined') {
+    console.log('[Chess] Mode standalone — persistance Grist désactivée');
+    return;
+  }
   try {
     grist.ready({ requiredAccess: 'full document' });
-    await new Promise(r => setTimeout(r, 500));
-    await ensureTables();
+    await new Promise(r => setTimeout(r, 300));
+
+    const tables = await grist.docApi.listTables();
+    console.log('[Chess] Tables Grist détectées :', tables);
+
+    await ensureTables(tables);
     gristAvailable = true;
-    console.log('[Chess] Grist initialisé');
-  } catch(e) {
-    console.warn('[Chess] Grist non disponible:', e.message);
+    console.log('[Chess] ✓ Grist OK — persistance active');
+  } catch (e) {
+    console.warn('[Chess] Grist init échouée :', e.message);
+    gristAvailable = false;
   }
 }
 
-async function ensureTables() {
-  const tables = await grist.docApi.listTables().catch(()=>[]);
-  const defs = {
-    Games: [
-      {id:'gameType',type:'Text'},{id:'startedAt',type:'DateTime'},
-      {id:'finishedAt',type:'DateTime'},{id:'winner',type:'Text'},
-      {id:'status',type:'Text'},{id:'currentTurn',type:'Text'},
-      {id:'fen',type:'Text'},{id:'boardState',type:'Text'},{id:'moveCount',type:'Int'}
+async function ensureTables(existingTables) {
+  const ids = Array.isArray(existingTables) ? existingTables : [];
+
+  // Tables préfixées Chess_ pour éviter les conflits avec les tables utilisateur.
+  // Uniquement Text/Int/Numeric — DateTime exige une timezone ('DateTime:UTC')
+  // et cause un échec silencieux si omise.
+  const schema = {
+    Chess_Games: [
+      { id: 'game_type',    type: 'Text'    },
+      { id: 'started_at',  type: 'Text'    }, // ISO 8601
+      { id: 'finished_at', type: 'Text'    },
+      { id: 'winner',      type: 'Text'    },
+      { id: 'status',      type: 'Text'    }, // 'playing' | 'finished' | 'draw'
+      { id: 'current_turn',type: 'Text'    },
+      { id: 'move_count',  type: 'Int'     },
+      { id: 'fen',         type: 'Text'    },
     ],
-    Players: [
-      {id:'name',type:'Text'},{id:'type',type:'Text'},
-      {id:'elo',type:'Numeric'},{id:'wins',type:'Int'},
-      {id:'losses',type:'Int'},{id:'draws',type:'Int'}
+    Chess_Moves: [
+      { id: 'game_id',     type: 'Int'     },
+      { id: 'move_index',  type: 'Int'     },
+      { id: 'player',      type: 'Text'    },
+      { id: 'notation',    type: 'Text'    },
+      { id: 'from_square', type: 'Text'    },
+      { id: 'to_square',   type: 'Text'    },
+      { id: 'piece',       type: 'Text'    },
+      { id: 'captured',    type: 'Text'    },
+      { id: 'evaluation',  type: 'Numeric' },
     ],
-    Moves: [
-      {id:'gameId',type:'Int'},{id:'moveIndex',type:'Int'},
-      {id:'player',type:'Text'},{id:'fromSquare',type:'Text'},
-      {id:'toSquare',type:'Text'},{id:'piece',type:'Text'},
-      {id:'captured',type:'Text'},{id:'notation',type:'Text'},
-      {id:'evaluation',type:'Numeric'},{id:'durationMs',type:'Numeric'},
-      {id:'boardAfter',type:'Text'}
-    ],
-    AI_Analysis: [
-      {id:'gameId',type:'Int'},{id:'depth',type:'Int'},
-      {id:'evaluatedNodes',type:'Int'},{id:'bestMove',type:'Text'},
-      {id:'score',type:'Numeric'},{id:'thinkingTime',type:'Numeric'}
-    ]
   };
-  for (const [name, cols] of Object.entries(defs)) {
-    if (!tables.includes(name)) {
+
+  for (const [name, cols] of Object.entries(schema)) {
+    if (!ids.includes(name)) {
+      console.log(`[Chess] Création table ${name}…`);
       await grist.docApi.applyUserActions([['AddTable', name, cols]]);
+      console.log(`[Chess] ✓ Table ${name} créée`);
+    } else {
+      console.log(`[Chess] Table ${name} déjà présente`);
     }
   }
 }
@@ -1073,61 +1095,70 @@ async function ensureTables() {
 async function gristNewGame() {
   if (!gristAvailable) return;
   try {
-    const result = await grist.docApi.applyUserActions([[
-      'AddRecord', 'Games', null, {
-        gameType: G.mode,
-        startedAt: Math.floor(Date.now()/1000),
-        status: 'playing',
-        currentTurn: G.turn,
-        moveCount: 0
+    const res = await grist.docApi.applyUserActions([[
+      'AddRecord', 'Chess_Games', null, {
+        game_type:    G.mode,
+        started_at:   new Date().toISOString(),
+        status:       'playing',
+        current_turn: G.turn,
+        move_count:   0,
+        fen:          buildFEN(),
       }
     ]]);
-    currentGameId = result?.retValues?.[0] ?? null;
-  } catch(e) { console.warn('[Chess] gristNewGame:', e.message); }
+    currentGameId = res?.retValues?.[0] ?? null;
+    console.log('[Chess] Partie créée, id =', currentGameId);
+  } catch (e) {
+    console.warn('[Chess] gristNewGame :', e.message);
+  }
 }
 
-async function gristSaveMove(move, notation, evalScore, durationMs) {
+async function gristSaveMove(move, notation, evalScore) {
   if (!gristAvailable || !currentGameId) return;
   try {
-    const piece = G.board[move.to]; // board already updated
-    const captured = move.capture ? (G.mode===CHESS ? (G.board[move.to]?.type||'') : 'piece') : '';
-    await grist.docApi.applyUserActions([[
-      'AddRecord', 'Moves', null, {
-        gameId: currentGameId,
-        moveIndex: G.history.length,
-        player: G.turn === 'white' ? 'black' : 'white', // move already executed
-        fromSquare: squareName(move.from),
-        toSquare: squareName(move.to),
-        piece: piece ? (piece.type||'P') : '',
-        captured: captured,
-        notation: notation,
-        evaluation: evalScore || 0,
-        durationMs: durationMs || 0,
-        boardAfter: JSON.stringify(G.board.map(p => p ? (p.color[0]+(p.type||'p')) : null))
-      }
-    ]]);
-    // Update game state
-    await grist.docApi.applyUserActions([[
-      'UpdateRecord', 'Games', currentGameId, {
-        currentTurn: G.turn,
-        moveCount: G.history.length,
-        status: G.gameOver ? 'finished' : 'playing'
-      }
-    ]]);
-  } catch(e) { console.warn('[Chess] gristSaveMove:', e.message); }
+    // La pièce capturée est dans G.history (sauvegardé AVANT la mise à jour du board)
+    const hist     = G.history[G.history.length - 1];
+    const captured = hist?.captured ? hist.captured.type : '';
+    const piece    = G.board[move.to];
+
+    // Un seul appel atomique : AddRecord + UpdateRecord
+    await grist.docApi.applyUserActions([
+      ['AddRecord', 'Chess_Moves', null, {
+        game_id:     currentGameId,
+        move_index:  G.history.length,
+        player:      G.turn === WHITE ? BLACK : WHITE, // tour déjà changé
+        notation:    notation,
+        from_square: squareName(move.from),
+        to_square:   squareName(move.to),
+        piece:       piece ? (piece.type || 'P') : '',
+        captured:    captured,
+        evaluation:  evalScore || 0,
+      }],
+      ['UpdateRecord', 'Chess_Games', currentGameId, {
+        current_turn: G.turn,
+        move_count:   G.history.length,
+        status:       G.gameOver ? 'finished' : 'playing',
+        fen:          buildFEN(),
+      }],
+    ]);
+  } catch (e) {
+    console.warn('[Chess] gristSaveMove :', e.message);
+  }
 }
 
 async function gristEndGame(winner) {
   if (!gristAvailable || !currentGameId) return;
   try {
     await grist.docApi.applyUserActions([[
-      'UpdateRecord', 'Games', currentGameId, {
-        finishedAt: Math.floor(Date.now()/1000),
-        winner: winner,
-        status: 'finished'
+      'UpdateRecord', 'Chess_Games', currentGameId, {
+        finished_at: new Date().toISOString(),
+        winner:      winner,
+        status:      winner === 'draw' ? 'draw' : 'finished',
       }
     ]]);
-  } catch(e) { console.warn('[Chess] gristEndGame:', e.message); }
+    console.log('[Chess] Fin de partie enregistrée, winner =', winner);
+  } catch (e) {
+    console.warn('[Chess] gristEndGame :', e.message);
+  }
 }
 
 /* ═══════════════════════════════════
@@ -1519,7 +1550,7 @@ function executeMove(move, promoteType=null) {
     if (legal.length===0) {
       // Persist to Grist before ending
       const movNotation = G.moveList[G.moveList.length-1] || '';
-      gristSaveMove(move, movNotation, lastAnalysis.score, 0);
+      gristSaveMove(move, movNotation, lastAnalysis.score);
       if (G.inCheck) endGame(opponent(G.turn)+' gagne par échec et mat !');
       else            endGame('Pat — Match nul !');
       renderBoard();
@@ -1564,7 +1595,7 @@ function executeMove(move, promoteType=null) {
     const oMoves=checkersMoves(G.board, G.turn);
     if (!oMoves.length) {
       const movNotation = G.moveList[G.moveList.length-1] || '';
-      gristSaveMove(move, movNotation, lastAnalysis.score, 0);
+      gristSaveMove(move, movNotation, lastAnalysis.score);
       endGame((opponent(G.turn)===WHITE?'Blancs':'Noirs')+' gagnent !');
       renderBoard();
       return;
@@ -1573,7 +1604,7 @@ function executeMove(move, promoteType=null) {
 
   // Persist to Grist (async, non-blocking)
   const movNotation = G.moveList[G.moveList.length-1] || '';
-  gristSaveMove(move, movNotation, lastAnalysis.score, 0);
+  gristSaveMove(move, movNotation, lastAnalysis.score);
 
   renderBoard();
   scheduleAI();

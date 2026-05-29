@@ -1405,6 +1405,7 @@ function renderMoveHistory() {
   }
   el.innerHTML=html;
   el.scrollTop=el.scrollHeight;
+  if (typeof window._resizeBoard === 'function') window._resizeBoard();
 }
 
 /* ═══════════════════════════════════

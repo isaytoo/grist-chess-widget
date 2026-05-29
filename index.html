@@ -162,6 +162,10 @@
   .sub-col::-webkit-scrollbar-thumb { background: rgba(201,168,76,0.25); border-radius: 2px; }
   .sub-col .ai-level-row { flex-direction: column; align-items: flex-start; gap: 3px; }
   .sub-col .ai-select { width: 100%; font-size: 0.65rem; }
+  /* Bloc droit : les sous-colonnes clips (l'historique scroll en interne) */
+  .right-block .sub-col { overflow: hidden; }
+  /* Contrôles : peut scroller si la colonne est trop basse */
+  .panel-grow .controls { overflow-y: auto; min-height: 0; }
 
   /* ── MAIN LAYOUT ── */
   .game-container {
@@ -937,23 +941,37 @@
 (function () {
   function resizeBoard() {
     var frame = document.querySelector('.board-frame');
+    var rb    = document.querySelector('.right-block');
     if (!frame) return;
-    // Réinitialise au CSS par défaut (68px) pour mesurer les hauteurs naturelles
-    frame.style.removeProperty('--sq');
-    void frame.offsetHeight; // force reflow
+
+    // Effondre le bloc droit à 0 pour qu'il ne gonfle pas la mesure
+    if (rb) { rb.style.height = '0px'; rb.style.overflow = 'hidden'; }
+    frame.style.removeProperty('--sq'); // retour CSS 68px
+    void frame.offsetHeight;            // force reflow
+
     var wrapper = document.querySelector('.board-wrapper');
     if (!wrapper) return;
-    // overhead = padding cadre (48) + 2 rangées de coords (≈32) + bordure (4) + marges (4)
-    var oh = 88;
+
+    // overhead = padding cadre (48) + 2 rangées coords (≈32) + bordure (4) + marges (4)
+    var oh  = 88;
     var sqH = Math.floor((wrapper.offsetHeight - oh) / 8);
     var sqW = Math.floor((wrapper.offsetWidth  - oh) / 8);
     var sq  = Math.max(44, Math.min(sqH, sqW, 92));
     frame.style.setProperty('--sq', sq + 'px');
+
+    // Verrouille le bloc droit à la hauteur du plateau (historique scrollable)
+    requestAnimationFrame(function () {
+      if (rb && frame) rb.style.height = frame.offsetHeight + 'px';
+    });
   }
+
   window.addEventListener('load', function () {
     requestAnimationFrame(function () { requestAnimationFrame(resizeBoard); });
   });
   window.addEventListener('resize', resizeBoard);
+
+  // Re-applique après chaque coup (l'historique peut avoir grandi)
+  window._resizeBoard = resizeBoard;
 })();
 </script>
 <script src="game.js"></script>
